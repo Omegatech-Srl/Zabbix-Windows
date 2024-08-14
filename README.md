@@ -1,3 +1,7 @@
+<div align="center">
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3HkrFkToxF0Hgrq_-LdbaUvDcHcNehHhQug&s" />
+</div>
+
 Per installare agent Zabbix e puntarlo a 145.14.161.84
 
 ```
