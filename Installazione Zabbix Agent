@@ -1,0 +1,49 @@
+
+#
+# SCRIPT PRONTO ALL'USO
+#
+
+# Installa Zabbix agent su Windows
+# Testato su Windows Server 2012, 2012R2, 2016, 2019
+# Versione 2.02
+# Creato da Matteo Giustini
+# Ultimo update 14/08/2024
+
+
+# Definisci le variabili
+# Cambia la variabile qua sotto quando esce nuova versione agent
+$zabbixMsiUrl = "https://cdn.zabbix.com/zabbix/binaries/stable/7.0/7.0.2/zabbix_agent-7.0.2-windows-amd64-openssl.msi"
+$zabbixServerIP = "145.14.161.84"
+$installFolder = "C:\Program Files\Zabbix Agent"
+
+# Scarica msi dell'agent Zabbix
+Write-Host "Scaricamento dell'agente Zabbix in corso..."
+$msiPath = "$env:TEMP\zabbix_agent.msi"
+Invoke-WebRequest -Uri $zabbixMsiUrl -OutFile $msiPath
+
+# Installa l'agent Zabbix utilizzando msiexec
+Write-Host "Installazione dell'agente Zabbix in corso..."
+Start-Process msiexec.exe -ArgumentList "/i `"$msiPath`" /qn INSTALLFOLDER=`"$installFolder`" SERVER=`"$zabbixServerIP`"" -NoNewWindow -Wait
+
+# Verifica se l'installazione è ok
+if (-Not (Test-Path -Path "$installFolder\zabbix_agentd.conf")) {
+    Write-Error "Installazione dell'agente Zabbix fallita o file di configurazione non trovato."
+    exit 1
+}
+
+# Avvia il servizio
+Write-Host "Avvio del servizio dell'agente Zabbix in corso..."
+Start-Service -Name "Zabbix Agent"
+
+# Verifica se il servizio è ok
+$serviceStatus = Get-Service -Name "Zabbix Agent"
+if ($serviceStatus.Status -eq "Running") {
+    Write-Host "Servizio dell'agente Zabbix avviato con successo."
+} else {
+    Write-Error "Avvio del servizio dell'agente Zabbix fallito."
+}
+
+# Facoltativo: pulizia del file MSI scaricato
+Remove-Item -Path $msiPath -Force
+
+Write-Host "Installazione e configurazione dell'agente Zabbix completate."
